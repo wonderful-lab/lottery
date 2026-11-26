@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>抽選アプリ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Noto+Sans+JP:wght@700;900&family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="rays" aria-hidden="true"></div>
+    <div id="strobe" aria-hidden="true"></div>
+    <div id="lasers" aria-hidden="true">
+      <div class="beam" style="top:12%; --r:-22deg; --d:2.8s;"></div>
+      <div class="beam" style="top:30%; --r:14deg; --d:2.2s;"></div>
+      <div class="beam" style="top:46%; --r:32deg; --d:2s;"></div>
+      <div class="beam" style="top:56%; --r:-8deg; --d:3.1s;"></div>
+      <div class="beam" style="top:70%; --r:20deg; --d:2.5s;"></div>
+      <div class="beam" style="top:86%; --r:-16deg; --d:2.9s;"></div>
+    </div>
+    <div id="doors" aria-hidden="true">
+      <div class="door door-left"><span class="door-star"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 6 L74 42 L112 44 L83 68 L92 106 L60 85 L28 106 L37 68 L8 44 L46 42 Z" fill="#ffd34d" stroke="#ff9d00" stroke-width="4" stroke-linejoin="round" /></svg></span></div>
+      <div class="door door-right"><span class="door-star"><svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 6 L74 42 L112 44 L83 68 L92 106 L60 85 L28 106 L37 68 L8 44 L46 42 Z" fill="#ffd34d" stroke="#ff9d00" stroke-width="4" stroke-linejoin="round" /></svg></span></div>
+    </div>
+    <div class="side-strip left" id="strip-left" aria-hidden="true">FEVER</div>
+    <div class="side-strip right" id="strip-right" aria-hidden="true">RUSH</div>
+    <!-- 星マスコット軍団（5体）はJSで生成して画面に追加する -->
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div id="flash" aria-hidden="true"></div>
+    <div id="reach-banner" aria-hidden="true" hidden>
+      <div class="rb-main" id="rb-main">SUPER REACH</div>
+      <div class="rb-sub" id="rb-sub">FEVER!</div>
+    </div>
+
+    <main>
+      <!-- ======== 1画面目：候補入力 ======== -->
+      <section id="view-setup" aria-label="候補の入力">
+        <div class="setup-head">
+          <h1><span class="accent">ドキドキ</span>抽選マシーン</h1>
+          <p>候補を入れてボタンを押すだけ。あとは運命のスロットにおまかせ。</p>
+        </div>
+
+        <div class="panel">
+          <label class="field-label" for="candidates">候補者リスト<span class="count" id="cand-count">0 名</span></label>
+          <textarea id="candidates" placeholder="田中太郎, 佐藤花子, 鈴木一郎, 高橋健&#10;のように、カンマ区切り（改行でもOK）で入力してください" autocomplete="off" spellcheck="false"></textarea>
+          <p class="hint">
+            カンマ（ , 、）でも改行でも区切れます。空欄は自動で除かれます。<br />
+            同じ名前を複数回入れると、その分だけ当たりやすくなります（くじの枚数が増えるイメージ）。
+          </p>
+          <div class="chips" id="chips" aria-live="polite"><span class="chips-empty">まだ候補がありません</span></div>
+          <p class="error" id="setup-error" role="alert"></p>
+
+          <div class="setup-actions">
+            <button class="btn btn-gold btn-draw" id="btn-draw" type="button" disabled>抽選する！</button>
+          </div>
+
+          <div class="setup-sub">
+            <button class="btn btn-ghost btn-small" id="btn-sample" type="button">サンプルを入れて試す</button>
+            <button class="btn btn-ghost btn-small" id="btn-clear" type="button">クリア</button>
+            <span class="spacer"></span>
+            <div class="fx-control" data-fx-control>
+              <span class="fx-caption">演出レベル</span>
+              <span class="fx-scale" role="group" aria-label="演出レベル（音と光の強さ）">
+                <button class="fx-step" type="button" data-level="1" aria-pressed="false" aria-label="レベル1 静か">1</button>
+                <button class="fx-step" type="button" data-level="2" aria-pressed="false" aria-label="レベル2 控えめ">2</button>
+                <button class="fx-step" type="button" data-level="3" aria-pressed="false" aria-label="レベル3 標準">3</button>
+                <button class="fx-step" type="button" data-level="4" aria-pressed="false" aria-label="レベル4 派手">4</button>
+                <button class="fx-step" type="button" data-level="5" aria-pressed="true" aria-label="レベル5 MAX">5</button>
+              </span>
+              <span class="fx-name" data-fx-name>MAX</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-box" id="history-box" hidden>
+          <h2>これまでの当選者</h2>
+          <div class="history-list" id="history-list"></div>
+        </div>
+      </section>
+
+      <!-- ======== 2画面目：スロット ======== -->
+      <section id="view-slot" aria-label="抽選スロット" hidden>
+        <div class="topbar">
+          <div class="fx-control" data-fx-control>
+            <span class="fx-caption">演出レベル</span>
+            <span class="fx-scale" role="group" aria-label="演出レベル（音と光の強さ）">
+              <button class="fx-step" type="button" data-level="1" aria-pressed="false" aria-label="レベル1 静か">1</button>
+              <button class="fx-step" type="button" data-level="2" aria-pressed="false" aria-label="レベル2 控えめ">2</button>
+              <button class="fx-step" type="button" data-level="3" aria-pressed="false" aria-label="レベル3 標準">3</button>
+              <button class="fx-step" type="button" data-level="4" aria-pressed="false" aria-label="レベル4 派手">4</button>
+              <button class="fx-step" type="button" data-level="5" aria-pressed="true" aria-label="レベル5 MAX">5</button>
+            </span>
+            <span class="fx-name" data-fx-name>MAX</span>
+          </div>
+        </div>
+
+        <div class="cabinet" id="cabinet">
+          <div class="marquee">
+            <div class="bulbs" id="bulbs-left" aria-hidden="true"></div>
+            <div class="marquee-title latin" id="marquee-title">★ LUCKY SLOT ★</div>
+            <div class="bulbs hide-sm" id="bulbs-right" aria-hidden="true"></div>
+          </div>
+
+          <p class="status-line" id="status-line" role="status">回転中…！</p>
+
+          <div class="reel-frame">
+            <div class="reel-window">
+              <span class="reel-side left" aria-hidden="true">▶</span>
+              <div class="reel-name" id="reel-name">？？？</div>
+              <span class="reel-side right" aria-hidden="true">◀</span>
+            </div>
+          </div>
+
+          <div class="slot-controls">
+            <div id="stop-zone">
+              <button class="btn-stop" id="btn-stop" type="button">STOP</button>
+              <p class="stop-note">ボタンを押すと抽選が確定します（押さなくても自動で止まります）</p>
+            </div>
+            <div id="result-zone" hidden>
+              <p class="win-sub" id="win-sub"></p>
+              <div class="result-actions">
+                <button class="btn btn-gold" id="btn-copy" type="button">結果をコピー</button>
+                <button class="btn" id="btn-again" type="button">もう一度抽選</button>
+                <button class="btn" id="btn-exclude" type="button">当選者を除いて再抽選</button>
+                <button class="btn btn-ghost" id="btn-back" type="button">一覧に戻る</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+{"compilerOptions":{"exactOptionalPropertyTypes":false,"forceConsistentCasingInFileNames":true,"lib":["ES2022","DOM","DOM.Iterable"],"module":"ES2022","moduleResolution":"bundler","noUncheckedIndexedAccess":false,"outDir":"dist","rootDir":"src","skipLibCheck":true,"strict":true,"target":"ES2022"},"include":["src"]}

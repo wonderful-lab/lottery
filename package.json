@@ -1,0 +1,1 @@
+{"description":"ブラウザだけで完結するスロット抽選アプリ。候補一覧を入れて抽選すると、パチンコ風の演出つきスロットで1人が選ばれる。","devDependencies":{"typescript":"^5.9.0"},"name":"lottery","private":true,"scripts":{"build":"tsc && node scripts/copy-public.mjs","dev":"npm run build && node scripts/serve.mjs","typecheck":"tsc --noEmit"},"type":"module","version":"1.0.0"}
