@@ -480,7 +480,7 @@ button, [role="button"], select, summary, input:not([type="checkbox"], [type="ra
         .side-strip{ font-size:clamp(1.5rem, 5.5vw, 2.2rem); padding:30px 9px; border-radius:12px; }
         .side-strip.left{ left:6px; }
         .side-strip.right{ right:6px; }
-        #reach-banner .rb-main{ font-size:clamp(2.6rem, 15vw, 4.5rem); -webkit-text-stroke:2px rgba(120,20,0,.4); }
+        #reach-banner .rb-main{ font-size:clamp(2rem, 11.5vw, 4.5rem); white-space:nowrap; -webkit-text-stroke:2px rgba(120,20,0,.4); }
         #reach-banner .rb-sub{ font-size:clamp(1.2rem, 5.5vw, 1.8rem); }
         .result-actions .btn{ flex:1 1 150px; }
         .btn-draw{ font-size:1.35rem; padding:16px 20px; }
